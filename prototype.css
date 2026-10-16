@@ -302,11 +302,8 @@ a { color: var(--text-body-link); }
 }
 .home-search:focus-within { box-shadow: var(--focus-ring); }
 .home-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: 400 16px/20px var(--font-sans); color: var(--text-body-base); }
-.home-search-mark {
-  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--brand-primary-2), var(--background-status-branded-base));
-  color: var(--text-body-inverted);
-}
+/* The AI-powered brand mark, from images/AI-powered-brand-mark.svg */
+.home-search-mark { flex: none; display: block; width: 32px; height: 32px; margin-left: 2px; }
 .home-body { padding-top: 16px; padding-bottom: 8px; }
 .pills { display: flex; gap: var(--space-100); overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
 .pills::-webkit-scrollbar { display: none; }

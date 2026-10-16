@@ -388,7 +388,7 @@
           h(A.IconButton, { icon: "mail", label: "Messages", badge: 2 })),
         h("h1", { className: "home-q" }, "How can we help you today?"),
         h("label", { className: "home-search" },
-          h("span", { className: "home-search-mark", "aria-hidden": "true" }, h(A.Icon, { name: "ai-sparkles", size: 16 })),
+          h("img", { className: "home-search-mark", src: "images/AI-powered-brand-mark.svg", alt: "", width: 32, height: 32 }),
           h("input", { type: "search", "aria-label": "Ask a question or search" }),
           h(A.Icon, { name: "arrow-right", size: 16 }))),
       h("div", { className: "as-body home-body" },
