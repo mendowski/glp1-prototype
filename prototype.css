@@ -172,6 +172,8 @@ a { color: var(--text-body-link); }
 
 /* Global header inside the phone: let it sit on the screen background */
 .as .anvil-gh { background: transparent; }
+/* No divider under the focused header, as in Figma */
+.as .anvil-gh--focused .anvil-gh__m { border-bottom: 0; }
 
 /* Select, built on Anvil's field + input styles */
 .anvil-input.select { position: relative; padding-right: 8px; }
@@ -456,6 +458,7 @@ button.med:hover { background: var(--navigation-background-hover); }
 .sheet-body { padding: 4px 16px 32px; }
 .inject-art { border: 1px solid var(--stroke-base); border-radius: var(--radius-150); background: var(--background-base); overflow: hidden; }
 .inject-art img { display: block; width: 100%; height: auto; }
+.inject-art + .suggest { margin-top: var(--space-between-sections); }
 .suggest { display: flex; gap: 12px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--stroke-base); }
 .suggest .anvil-icon { color: var(--icon-status-success); }
 .log { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; color: var(--text-body-subdued); }

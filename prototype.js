@@ -36,7 +36,7 @@
       hot: [{ box: [32, 230, 748, 730], label: "Condition Management" }] },
     { id: "b-cm", file: "002-current" + B, title: "Condition Management", w: 780, h: 3162, foot: 2982,
       hot: [{ box: [660, 110, 748, 194], label: "Menu" }] },
-    { id: "b-menu", file: "003-current" + B, title: "Condition Management menu", w: 780, h: 1688,
+    { id: "b-menu", file: "003-current" + B, title: "Condition Management menu", w: 780, h: 1688, tabs: 1510,
       hot: [{ box: [40, 256, 740, 360], label: "GLP-1 medication for weight loss" },
             { box: [660, 80, 720, 140], label: "Close menu", to: "back" }] },
 
@@ -47,11 +47,11 @@
             { box: [64, 2536, 716, 2726], label: "Track food", to: "b-lesson" },
             RETURN_CM] },
     { id: "b-weigh", file: "005-current" + B, title: "Weigh-in", w: 780, h: 1688,
-      hot: [{ box: CLOSE_DARK, label: "Close" }] },
+      hot: [{ box: CLOSE_DARK, label: "Close", to: "back" }] },
     { id: "b-coach", file: "006-current" + B, title: "Coaching", w: 780, h: 1688,
-      hot: [{ box: CLOSE_DARK, label: "Close" }] },
+      hot: [{ box: CLOSE_DARK, label: "Close", to: "back" }] },
     { id: "b-lesson", file: "007-current" + B, title: "Lesson or food log", w: 780, h: 1688,
-      hot: [{ box: CLOSE_DARK, label: "Close" }] },
+      hot: [{ box: CLOSE_DARK, label: "Close", to: "back" }] },
     { id: "b-progress", file: "008-current" + B, title: "Tracker in progress", w: 780, h: 3372, foot: 3194,
       hot: [{ box: [32, 1190, 748, 1470], label: "Weigh-ins" },
             { box: [64, 1790, 716, 1980], label: "Schedule or view sessions details" },
@@ -61,6 +61,12 @@
     { id: "b-done", file: "009-current" + B, title: "Requirements complete", w: 780, h: 2216, foot: 2038,
       hot: [{ box: [32, 1800, 680, 1860], label: "Return to Condition Management Home", to: "b-cm" }] }
   ];
+  // The Home tab goes back to Home on every screen that shows the app's tab
+  // bar. tabs is where the tab bar starts when it isn't pinned (foot).
+  BEFORE.forEach(function (s) {
+    var top = s.foot || s.tabs;
+    if (top && s.id !== "b-home") s.hot.push({ box: [0, top, 150, top + 125], label: "Home", to: "b-home" });
+  });
   /* ------------------------------------------------------------------
      Small building blocks
      ------------------------------------------------------------------ */
