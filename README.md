@@ -28,7 +28,7 @@ Screens are listed in the `BEFORE` array near the top of `prototype.js`, grouped
 Screens are listed in the `AFTER` array, in the same order as the Figma files.
 
 - **GLP-1 page:** the flow opens it on day 1, 7, 29 or 30 (`DAYS`). Slide the tracker or tap a day to see any day of the cycle; `dayInfo` sets each day's text, focus card and kind (default, shot, warning or complete). The page color slides in sideways as you move between kinds of days (`PAGE_BG`). What's been logged is in `LOGGED`, and shot days are in `SHOTS`.
-- **Track sheet:** one sheet for Figma 100 and 006. It's empty on day 1 and lists what's been logged as the cycle goes on. Its rows open the weigh-in, food log and lessons screens.
+- **Track sheet:** Figma 100. Every "Track" button opens it. Its rows open the weigh-in, food log and lessons screens.
 - **Logging:** submitting a weight, saving a food log or completing a lesson goes back to the day you came from and shows a toast for a few seconds.
 - **Symptom checker:** Figma 400 to 402 are one live screen. Picking "Severe" shows the alert and care team actions.
 

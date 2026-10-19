@@ -451,6 +451,29 @@ button.med:hover { background: var(--navigation-background-hover); }
   box-shadow: var(--elevation);
 }
 .sheet-wrap { height: 100%; }
+/* Refill requirements drawer: progress so far this cycle */
+.rq-list { display: flex; flex-direction: column; gap: 12px; }
+.rq-card { padding: 16px; border: 1px solid var(--stroke-subdued); border-radius: var(--radius-150); background: var(--background-surface); }
+.rq-head { display: flex; align-items: center; gap: 8px; }
+.rq-head h3 { flex: 1; }
+.rq-head > .anvil-icon { color: var(--icon-status-success); flex: none; }
+.rq-rows { list-style: none; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px solid var(--stroke-base); display: flex; flex-direction: column; gap: 12px; color: var(--text-body-subdued); }
+.rq-rows li { display: flex; align-items: center; gap: 8px; }
+.rq-rows li > span:first-of-type { flex: 1; }
+.rq-todo > .anvil-icon { color: var(--icon-status-warning); }
+.tag--warn-outline { border-color: var(--icon-status-warning); color: var(--text-status-warning); }
+.rq-cycle { margin-top: 16px; padding: 16px; border-radius: var(--radius-150); background: var(--background-neutral); }
+.rq-cycle-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
+.rq-dots { display: flex; align-items: center; justify-content: space-between; }
+.rq-dot { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--text-body-subdued); }
+.rq-dot.is-past { border: 0; background: var(--glp1-tracker-default, #53a951); }
+.rq-dot.is-today { width: 12px; height: 12px; border: 0; background: var(--glp1-tracker-default, #53a951); }
+.rq-cycle.is-warn .rq-dot.is-today { background: var(--icon-status-warning); }
+
+/* A taller sheet that fits its content without scrolling (Shared information) */
+.sheet--tall { max-height: calc(100% - 40px); }
+.sheet--tall .sheet-body { padding-bottom: 16px; }
+.sheet--tall .banner { margin-bottom: 12px; }
 .screen:has(.as--sheet) { overflow: hidden; }
 .as--sheet .sheet-under { height: 100%; overflow: hidden; }
 .sheet-head { position: sticky; top: 0; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 12px 8px; background: inherit; text-align: center; }
@@ -595,6 +618,15 @@ html.is-embed, html.is-embed body { background: transparent; }
 .embed .nav-row { width: var(--embed-w, 390px); max-width: 100%; }
 
 /* ---------- GLP-1 tracker page ---------- */
+/* Text links at the bottom of the GLP-1 page and in sheets */
+.glp-links { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin-top: var(--space-between-sections); }
+.glp-links--tight { gap: 8px; margin-top: 12px; }
+.text-link {
+  appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer;
+  font: 500 16px/24px var(--font-sans); color: var(--text-body-link);
+}
+.text-link:hover { text-decoration: underline; }
+.text-link:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-100, 4px); }
 .glp-body { padding-top: 16px; }
 /* Day-activity tracker (Figma "Day-activity"). Days are 32px apart and
    the selected day sits in the middle. Colors are Anvil's glp1/tracker-default

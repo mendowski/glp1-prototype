@@ -139,7 +139,7 @@
     return h("div", { className: "sheet-wrap" },
       h("div", { className: "sheet-under", "aria-hidden": "true" }, h(StatusBar), props.under || null),
       h("div", { className: "sheet-dim" }),
-      h("section", { className: "sheet", role: "dialog", "aria-modal": "true", "aria-labelledby": "sheet-title" },
+      h("section", { className: "sheet" + (props.tall ? " sheet--tall" : ""), role: "dialog", "aria-modal": "true", "aria-labelledby": "sheet-title" },
         h("div", { className: "sheet-head" },
           h("span", { className: "sheet-spacer" }),
           h("h2", { id: "sheet-title", className: "heading-heading-4" }, props.title),
@@ -213,10 +213,10 @@
       focus: { tone: "success", title: "You’ve completed the GLP-1 coverage requirements", body: "Tirzepatide 15 mg will be mailed to you within 5–7 days." }, forYou: "meal" };
     if (n === 29) return { n: n, kind: "warning", sub: "Tomorrow is the last day of your GLP-1 cycle",
       focus: { tone: "warning", title: "You’re missing one food log or a lesson", body: "Complete your task to get your refill on time.", go: "track" }, forYou: "meal" };
-    if (shot) return { n: n, kind: "shot", sub: "Shot day",
+    if (shot) return { n: n, kind: "shot", sub: "Injection day",
       focus: { tone: "shot", title: "Today is your injection day", body: "We suggest that you apply today’s injection on your right thigh.", go: "inject" }, forYou: "feel" };
     var left = nextShot(n) - n;
-    return { n: n, kind: "default", sub: left + (left === 1 ? " day" : " days") + " left to your next shot",
+    return { n: n, kind: "default", sub: left + (left === 1 ? " day" : " days") + " left to your next injection",
       focus: { tone: "info", title: "Book a visit with your coach", body: "A visit with your coach improves outcomes.", icon: "video" }, forYou: "meal" };
   }
 
@@ -363,10 +363,12 @@
       if (d === day) {
         // Tapping the selected day: a shot day opens the injection site,
         // a regular or warning day opens the Track sheet.
-        var tapTo = props.live && props.onTap ? props.onTap[info.kind] : null;
+        // A day before today opens the Refill requirements drawer.
+        var past = props.today && d < props.today;
+        var tapTo = !props.live ? null : past ? props.onPast : props.onTap ? props.onTap[info.kind] : null;
         var tapShot = !!tapTo;
         items.push(h(tapShot ? "button" : "span", Object.assign({ key: d, className: "trk-day trk-today trk-today--" + info.kind + (tapShot ? " is-tap" : ""), "aria-current": "date" },
-            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (info.kind === "shot" ? "Shot day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
+            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (past ? "See your refill requirements" : info.kind === "shot" ? "Injection day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
           h(A.Icon, { name: "location-pin", size: 16, variant: "active" }),
           act ? h(A.Icon, { name: ACT_ICON[act], size: 16 }) : null));
         continue;
@@ -375,7 +377,8 @@
       var cls = "trk-day " + when + (shot ? " is-shot" : "");
       var content = [h("span", { key: "dot", className: "trk-dot" }), icon];
       items.push(d <= 30 && props.live
-        ? h("button", { key: d, type: "button", className: cls + " is-link", "aria-label": "Day " + d, onClick: (function (n) { return function () { scrollToDay(n, true); }; })(d) }, content)
+        ? h("button", { key: d, type: "button", className: cls + " is-link", "aria-label": "Day " + d + (props.today && d < props.today ? ": see your refill requirements" : ""),
+            onClick: props.today && d < props.today && props.onPast ? props.onPast : (function (n) { return function () { scrollToDay(n, true); }; })(d) }, content)
         : h("span", { key: d, className: cls, "aria-hidden": "true" }, content));
     }
     return h("div", { className: "trk trk--" + info.kind, ref: ref, role: "group", tabIndex: 0, "aria-label": "Your 30-day cycle. Swipe or use the arrow keys to see other days." }, items);
@@ -534,7 +537,7 @@
         h("div", { className: "center" },
           h("h1", { className: "heading-heading-2" }, "Day " + cfg.n + " of 30" + (cfg.n === DAYS[p.dayId].n ? " • Today" : "")),
           h("p", { className: "body-small-default", style: { marginTop: 4 } }, cfg.sub)),
-        h(Tracker, { day: sel, start: start, live: live, onSelect: setSel, onMove: paint, onTap: { shot: inject, "default": track, warning: track } }),
+        h(Tracker, { day: sel, start: start, live: live, onSelect: setSel, onMove: paint, today: DAYS[p.dayId].n, onPast: p.to("refill"), onTap: { shot: inject, "default": track, warning: track } }),
         h("div", { className: "glp-actions" },
           [["medicine", cfg.med || "Medication", inject], ["plus-circle", "Track", track], ["medical-info", "Symptoms", symptoms]].map(function (a) {
             return h("button", { key: a[1], type: "button", className: "glp-action", onClick: a[2] }, h(A.Icon, { name: a[0], size: 24 }), h("span", { className: "body-small-default" }, a[1]));
@@ -548,13 +551,16 @@
           })),
         h(SectionLabel, { action: h(A.Button, { variant: "tertiary", size: "small" }, "View all") }, "For you"),
         cfg.forYou === "feel"
-          ? h(FocusCard, { tone: "plain", title: "How are you feeling?", body: "Let us know how you’re feeling after your shot.", onClick: symptoms })
+          ? h(FocusCard, { tone: "plain", title: "How are you feeling?", body: "Let us know how you’re feeling after your injection.", onClick: symptoms })
           : h(FocusCard, { tone: "plain", title: "Picked for you this week", body: "Check all nutritious meals picked for your stage", onClick: function () {} },
               h("span", { className: "meal" },
                 h("img", { src: "images/meal-garlic-chicken.jpg", alt: "", width: 48, height: 48 }),
                 h("span", null,
                   h("span", { className: "body-strong meal-name" }, "Garlic Paprika Chicken and Spinach"),
                   h("span", { className: "body-small-default subdued" }, "Dinner · 30 min")))),
+        h("div", { className: "glp-links" },
+          h("button", { type: "button", className: "text-link", onClick: p.to("shared") }, "What your employer can see"),
+          h("button", { type: "button", className: "text-link" }, "Questions about requirements? Explore FAQs")),
         h("div", { style: { height: 24 } }),
         live && toast ? h(Toast, { text: toast }) : null));
   }
@@ -581,39 +587,96 @@
       h("p", { className: "suggest body-default" }, h(A.Icon, { name: "check-circle", variant: "active", size: 24 }),
         next === day ? "Suggested: right thigh, today" : "Suggested: right thigh on " + dateOf(next)),
       h("ul", { className: "log" },
-        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Last shot completed: left arm"), h("span", null, dateOf(last))),
-        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Shot completed"), h("span", null, dateOf(prev)))));
+        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Last injection completed: left arm"), h("span", null, dateOf(last))),
+        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Injection completed"), h("span", null, dateOf(prev)))));
   }
 
-  // One Track sheet: empty at the start of a cycle, then a list of what's been logged.
+  // What the member's employer can and can't see (after/shared-information.png).
+  function SharedInfo(p) {
+    return h(Sheet, { title: "Shared information", tall: true, onClose: p.back, under: h(UnderDay) },
+      h("h3", { className: "heading-heading-4" }, "How your privacy is protected"),
+      h("p", { className: "body-small-default subdued", style: { margin: "4px 0 12px" } }, "By agreement with your employer, not by technical restriction"),
+      h("div", { className: "banner banner--success" },
+        h(A.Icon, { name: "check-circle", size: 24 }),
+        h("div", null,
+          h("p", { className: "heading-heading-4" }, "Shared with your employer"),
+          h("p", { className: "body-default" }, "Only whether you met this month’s requirements"))),
+      h("div", { className: "banner banner--warning" },
+        h(A.Icon, { name: "alert", size: 24 }),
+        h("div", null,
+          h("p", { className: "heading-heading-4" }, "Not shared, by policy"),
+          h("p", { className: "body-default" }, "Your weight, session notes, diagnosis, or medication"))),
+      h("p", { className: "body-small-default subdued" }, "This is a contractual commitment between [health plan] and your employer, not a system limitation. Your care team and this app retain full access to your health data."),
+      h("div", { className: "glp-links glp-links--tight" },
+        h("button", { type: "button", className: "text-link" }, "Read the data sharing agreement"),
+        h("button", { type: "button", className: "text-link" }, "Contact privacy support")));
+  }
+
+  // Refill requirements: what's been completed so far this cycle. Opens from
+  // any day before today in the tracker (after/Day-1, Day-25, Day-27 PNGs).
+  // Members can log one activity a day, so the list comes from LOGGED.
+  var ITEM_LABEL = { weight: "Weight-in", coach: "Coaching session", lesson: "Lesson", food: "Food tracked" };
+  var ITEM_LABEL_BY_DAY = { 29: "Meal synced from MyFitnessPal" };
+  function Refill(p) {
+    var today = DAYS[session.day].n, left = 30 - today;
+    function done(kinds) {
+      var out = [];
+      for (var d = 1; d <= today; d++) if (kinds.indexOf(LOGGED[d]) >= 0 && loggedBy(today, d)) out.push(d);
+      return out;
+    }
+    var groups = [
+      { title: "Weigh-ins", need: 4, days: done(["weight"]), todo: function (n) { return "Complete " + n + " weight-in" + (n > 1 ? "s" : ""); } },
+      { title: "Coaching", need: 1, days: done(["coach"]), todo: function () { return "Complete a coaching session"; } },
+      { title: "Lessons or food tracking", need: 4, days: done(["lesson", "food"]), todo: function (n) { return n > 1 ? "Complete " + n + " lessons or food logs" : "Complete a lesson or log food"; } }
+    ];
+    var missing = groups.some(function (g) { return g.days.length < g.need; });
+    // Near the end of the cycle with something still missing: warn.
+    var warn = missing && left <= 3;
+    var dots = [];
+    for (var d = 1; d <= 30; d++) dots.push(h("span", { key: d, className: "rq-dot" + (d < today ? " is-past" : d === today ? " is-today" : "") }));
+    return h(Sheet, { title: "Refill requirements", tall: true, onClose: p.back, under: h(UnderDay) },
+      h("p", { className: "body-default subdued", style: { marginBottom: 16 } }, "Complete all requirements by May 13 to keep your employer’s contribution."),
+      h("div", { className: "rq-list" },
+        groups.map(function (g) {
+          var n = Math.min(g.days.length, g.need), complete = n >= g.need;
+          var rows = g.days.map(function (d) {
+            return h("li", { key: d }, h(A.Icon, { name: "check", size: 16 }), h("span", null, ITEM_LABEL_BY_DAY[d] && LOGGED[d] === "food" ? ITEM_LABEL_BY_DAY[d] : ITEM_LABEL[LOGGED[d]]), h("span", null, dateOf(d)));
+          });
+          if (warn && !complete) rows.push(h("li", { key: "todo", className: "rq-todo" }, h(A.Icon, { name: "alert-triangle", size: 16 }), h("span", null, g.todo(g.need - n))));
+          return h("section", { key: g.title, className: "rq-card" },
+            h("div", { className: "rq-head" },
+              complete ? h(A.Icon, { name: "check-circle", variant: "active", size: 24 }) : null,
+              h("h3", { className: "heading-heading-4" }, g.title),
+              h("span", { className: "tag " + (complete ? "tag--success" : warn ? "tag--warn-outline" : "") }, n + "/" + g.need)),
+            rows.length ? h("ul", { className: "rq-rows body-small-default" }, rows) : null);
+        })),
+      h("div", { className: "rq-cycle" + (warn ? " is-warn" : "") },
+        h("p", { className: "body-small-default subdued" }, "Apr 13 - May 13"),
+        h("div", { className: "rq-cycle-row" },
+          h("p", { className: "heading-heading-4" }, "Day " + today + " of 30 • Today"),
+          h("p", { className: "body-small-default" }, left === 0 ? "Refill today" : left + (left === 1 ? " day" : " days") + " to refill")),
+        h("div", { className: "rq-dots", "aria-hidden": "true" }, dots)));
+  }
+
+  // One Track sheet (Figma 100): the four requirements, each leading to its log.
   function Track(p) {
-    var day = session.n;
     var rows = [
-      { title: "Weight-in", kind: "weight", go: "weighins" },
-      { title: "Coaching", kind: "coach" },
-      { title: "Food log", kind: "food", go: "food" },
-      { title: "Lessons", kind: "lesson", go: "lessons" }
+      { title: "Weight-in", go: "weighins" },
+      { title: "Coaching" },
+      { title: "Food log", go: "food" },
+      { title: "Lessons", go: "lessons" }
     ];
     return h(Sheet, { title: "Track", onClose: p.back, under: h(UnderDay) },
       h("p", { className: "body-default subdued", style: { marginBottom: 16 } }, "Complete 4 weigh-ins, 1 coaching session, and 4 food logs or lessons in a month to receive your discount."),
       h("div", { className: "stack", style: { gap: 12, marginBottom: 0 } },
         rows.map(function (r) {
-          var items = [];
-          for (var d = 1; d <= 30; d++) if (LOGGED[d] === r.kind && loggedBy(day, d, true)) items.push(d);
-          items.reverse();
-          var body = [
-            h("span", { key: "c", className: "track-main" },
-              h("span", { className: "heading-heading-4" }, r.title),
-              items.length ? h("span", { className: "req-items" },
-                items.map(function (d) {
-                  return h("span", { key: d, className: "req-item body-small-default" }, h(A.Icon, { name: "check", size: 16 }), h("span", null, ACT_LABEL[r.kind]), h("span", null, dateOf(d)));
-                })) : null),
-            h(A.Icon, { key: "a", name: "arrow-right", size: 16 })
-          ];
           // Prominent nav list item, built from Anvil tokens (not an Anvil component yet).
-          return h(Tap, { key: r.title, className: "track-row", onClick: r.go ? p.to(r.go) : undefined }, body);
+          return h(Tap, { key: r.title, className: "track-row", onClick: r.go ? p.to(r.go) : undefined },
+            h("span", { className: "track-main" }, h("span", { className: "heading-heading-4" }, r.title)),
+            h(A.Icon, { name: "arrow-right", size: 16 }));
         })));
   }
+
 
   function Weighins(p) {
     return h(Sheet, { title: "Weigh-ins", onClose: p.back, under: h(UnderDay) },
@@ -854,11 +917,12 @@
     { id: "health", title: "My health", render: MyHealth },
 
     { id: "day1", title: "Day 1 of 30", render: dayScreen("day1"), group: "Tracking requirements" },
-    { id: "day7", title: "Day 7: shot day", render: dayScreen("day7") },
+    { id: "day7", title: "Day 7: injection day", render: dayScreen("day7") },
     { id: "day29", title: "Day 29: a task is missing", render: dayScreen("day29") },
     { id: "day30", title: "Day 30: requirements met", render: dayScreen("day30") },
     { id: "inject", title: "Injection site", render: Injection, sheet: true, day: "day30" },
-    { id: "track-done", title: "Track: completed tasks", render: Track, sheet: true, day: "day30" },
+    { id: "shared", title: "What your employer can see", render: SharedInfo, sheet: true, day: "day1" },
+    { id: "refill", title: "Refill requirements (past days)", render: Refill, sheet: true, day: "day29" },
 
     { id: "home-next", title: "Home", render: function (p) { return h(Home, Object.assign({}, p, { next_refill: true })); }, group: "Next refill", noStatus: true },
     { id: "health-next", title: "My health", render: function (p) { return h(MyHealth, Object.assign({}, p, { next_refill: true })); } },
@@ -949,14 +1013,14 @@
       p: ["GLP-1 sat four taps deep: Programs, then Condition Management, then its menu, then “GLP-1 medication for weight loss.” I brought engineering and product together in workshops to simplify the homepage, and together we defined Teladoc Health’s four-zone homepage framework. It gives programs like GLP-1 a clear place on Home, as an action to take, and in My health next to the member’s other medications."],
       screen: 1 },
     { t: "Show the cycle as a timeline",
-      p: ["Members had no timeline and no clear start or end to their cycle. The GLP-1 page now opens on a 30-day tracker that marks today, shows what’s been logged and when the next shot is due. It warns when a task is missing near the end of the cycle, and confirms when the requirements are met."],
+      p: ["Members had no timeline and no clear start or end to their cycle. The GLP-1 page now opens on a 30-day tracker that marks today, shows what’s been logged and when the next injection is due. It warns when a task is missing near the end of the cycle, and confirms when the requirements are met."],
       screen: 3 },
     { t: "Make the requirements impossible to miss",
       p: ["I chose a basic dashboard that worked end to end over a bigger one that did many things halfway. One Track sheet lists the four requirements and everything logged toward them, and each row leads straight to logging a weigh-in, a food log or a lesson. A short confirmation appears when something new is logged."],
-      screen: 8 },
+      screen: 12 },
     { t: "Let members enter their weight by hand",
       p: ["Members who were traveling, had a scale that wouldn’t connect, or weighed over the scale’s 440 lb limit couldn’t complete a weigh-in, and lost their medication. Clinical and product agreed that self-reported weight would count, so I put it inside the existing weigh-in flow. It went live in October 2026."],
-      screen: 13 }
+      screen: 14 }
   ];
 
   function CaseStudy(props) {
