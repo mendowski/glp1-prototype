@@ -209,11 +209,11 @@
   // default, shot, warning (day 29, a task missing) or complete (day 30).
   function dayInfo(n) {
     var shot = SHOTS.indexOf(n) >= 0;
-    if (n === 30) return { n: n, kind: "complete", sub: "Today is the last day of your cycle", med: "Injection log",
+    if (n === 30) return { n: n, kind: "complete", sub: "Last day of your cycle", med: "Injection log",
       focus: { tone: "success", title: "You’ve completed the GLP-1 coverage requirements", body: "Tirzepatide 15 mg will be mailed to you within 5–7 days." }, forYou: "meal" };
     if (n === 29) return { n: n, kind: "warning", sub: "Tomorrow is the last day of your GLP-1 cycle",
       focus: { tone: "warning", title: "You’re missing one food log or a lesson", body: "Complete your task to get your refill on time.", go: "track" }, forYou: "meal" };
-    if (shot) return { n: n, kind: "shot", sub: "Today is your shot day",
+    if (shot) return { n: n, kind: "shot", sub: "Shot day",
       focus: { tone: "shot", title: "Today is your injection day", body: "We suggest that you apply today’s injection on your right thigh.", go: "inject" }, forYou: "feel" };
     var left = nextShot(n) - n;
     return { n: n, kind: "default", sub: left + (left === 1 ? " day" : " days") + " left to your next shot",
@@ -359,7 +359,12 @@
       var act = shot ? "shot" : (loggedBy(day, d) ? LOGGED[d] : null);
       var icon = act ? h(A.Icon, { key: "i", name: ACT_ICON[act], size: 16 }) : h("span", { key: "i", className: "trk-gap" });
       if (d === day) {
-        items.push(h("span", { key: d, className: "trk-day trk-today trk-today--" + info.kind, "aria-current": "date", "aria-label": "Day " + d + ", selected" },
+        // Tapping the selected day: a shot day opens the injection site,
+        // a regular or warning day opens the Track sheet.
+        var tapTo = props.live && props.onTap ? props.onTap[info.kind] : null;
+        var tapShot = !!tapTo;
+        items.push(h(tapShot ? "button" : "span", Object.assign({ key: d, className: "trk-day trk-today trk-today--" + info.kind + (tapShot ? " is-tap" : ""), "aria-current": "date" },
+            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (info.kind === "shot" ? "Shot day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
           h(A.Icon, { name: "location-pin", size: 16, variant: "active" }),
           act ? h(A.Icon, { name: ACT_ICON[act], size: 16 }) : null));
         continue;
@@ -460,13 +465,6 @@
               h("p", { className: "body-small-default snap-t" }, h(A.Icon, { name: s.trend, size: 16 }), s.t),
               h("p", { className: "body-small-default subdued" }, s.when));
           })),
-        h(SectionLabel, null, "Care team"),
-        h("div", { className: "team" },
-          [["jane-brennan", "Dr. Jane Brennan", "Primary care"], ["sally-reeves", "Sally Reeves", "Care guide"]].map(function (m) {
-            return h("div", { key: m[1], className: "member" },
-              h("img", { className: "avatar", src: "images/" + m[0] + ".jpg", alt: "", width: 56, height: 56 }),
-              h("div", null, h("p", { className: "heading-heading-4" }, m[1]), h("p", { className: "body-small-default subdued" }, m[2])));
-          })),
         h(SectionLabel, null, next ? "Programs" : "Medications"),
         h("div", { className: "stack stack--nav" },
           h(Tap, { className: "med", onClick: p.to(next ? "day30" : "day1"), label: "GLP-1 for weight loss: Tirzepatide, 15 mg" },
@@ -479,7 +477,14 @@
             h("p", { className: "body-small-default" }, "Blood pressure"),
             h("p", { className: "heading-heading-4" }, "Lisinopril, 10 mg"),
             h(Tag, { tone: "success" }, "Active"),
-            h("p", { className: "body-default subdued" }, "Next refill: May 13, 2026")))),
+            h("p", { className: "body-default subdued" }, "Next refill: May 13, 2026"))),
+        h(SectionLabel, null, "Care team"),
+        h("div", { className: "team" },
+          [["jane-brennan", "Dr. Jane Brennan", "Primary care"], ["sally-reeves", "Sally Reeves", "Care guide"]].map(function (m) {
+            return h("div", { key: m[1], className: "member" },
+              h("img", { className: "avatar", src: "images/" + m[0] + ".jpg", alt: "", width: 56, height: 56 }),
+              h("div", null, h("p", { className: "heading-heading-4" }, m[1]), h("p", { className: "body-small-default subdued" }, m[2])));
+          }))),
       h(TabBar, { current: "health", on: { home: p.to(next ? "home-next" : "home") } }));
   }
 
@@ -525,9 +530,9 @@
       h(Focused, { title: "GLP-1 for weight loss", onBack: p.to(sel === 30 ? "health-next" : "health") }),
       h("div", { className: "as-body glp-body" },
         h("div", { className: "center" },
-          h("h1", { className: "heading-heading-2" }, "Day " + cfg.n + " of 30"),
+          h("h1", { className: "heading-heading-2" }, "Day " + cfg.n + " of 30" + (cfg.n === DAYS[p.dayId].n ? " • Today" : "")),
           h("p", { className: "body-small-default", style: { marginTop: 4 } }, cfg.sub)),
-        h(Tracker, { day: sel, start: start, live: live, onSelect: setSel, onMove: paint }),
+        h(Tracker, { day: sel, start: start, live: live, onSelect: setSel, onMove: paint, onTap: { shot: inject, "default": track, warning: track } }),
         h("div", { className: "glp-actions" },
           [["medicine", cfg.med || "Medication", inject], ["plus-circle", "Track", track], ["medical-info", "Symptoms", symptoms]].map(function (a) {
             return h("button", { key: a[1], type: "button", className: "glp-action", onClick: a[2] }, h(A.Icon, { name: a[0], size: 24 }), h("span", { className: "body-small-default" }, a[1]));
@@ -996,6 +1001,9 @@
         h("p", { className: "body-default" }, "Workshops with engineering and product simplified the homepage and defined a four-zone framework, so GLP-1 shows up on Home and in My health instead of four taps deep. And when a care team member walked members through the requirements, enrollment roughly doubled.")));
   }
 
+  var EMBED = /[?&]embed\b/.test(location.search);
+  if (EMBED) document.documentElement.classList.add("is-embed");
+
   function App() {
     var start = readHash() || { mode: "before", index: 0 };
     var init = useRef(false);
@@ -1070,6 +1078,28 @@
     var screen = mode === "before"
       ? h(BeforeScreen, Object.assign({ key: "b" + i, screen: flow[i] }, screenProps))
       : h(AfterScreen, Object.assign({ key: "a" + i, screen: flow[i] }, screenProps));
+
+    var switcher = h("div", { className: "switch", role: "group", "aria-label": "Version" },
+      h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")),
+      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil")));
+    var navRow = h("div", { className: "nav-row" },
+      h(A.Button, { variant: "tertiary", icon: "left", iconName: "arrow-left", disabled: i === 0, onClick: function () { go(i - 1); } }, "Previous"),
+      h("span", { className: "counter", "aria-live": "polite" }, (i + 1) + " of " + flow.length),
+      last
+        ? h(A.Button, { variant: "tertiary", icon: "right", iconName: "reload", onClick: function () { go(0); } }, "Start over")
+        : h(A.Button, { variant: "tertiary", icon: "right", iconName: "arrow-right", onClick: function () { go(i + 1); } }, "Next"));
+
+    // Embed mode (add ?embed to the address): just the switch, the phone and
+    // a link to the full prototype, for showing inside a case study page.
+    if (EMBED) {
+      return h("main", { className: "embed" },
+        switcher,
+        h("div", { className: "phone" },
+          h("div", { className: "screen", ref: screenRef, tabIndex: -1 }, screen)),
+        navRow,
+        h("a", { className: "embed-link body-small-default", href: location.pathname + "#" + mode + "/" + (i + 1), target: "_blank", rel: "noopener" },
+          "Open the full prototype", h(A.Icon, { name: "arrow-right", size: 16 })));
+    }
 
     return h("main", { className: "page" },
       h("header", { className: "intro" },

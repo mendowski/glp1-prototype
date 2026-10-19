@@ -324,7 +324,7 @@ a { color: var(--text-body-link); }
 /* The quick links on Home sit closer to the first section, as in Figma 000. */
 .pills + .sec-label { margin-top: var(--space-300); }
 /* A list of prominent nav cards, such as Medications */
-.stack--nav { gap: var(--space-between-prominent-nav-list); margin-bottom: var(--space-300); }
+.stack--nav { gap: var(--space-between-prominent-nav-list); margin-bottom: 0; }
 .sec-label h2 { text-transform: uppercase; color: var(--text-header-sections); }
 .action-card {
   padding: 16px 16px 8px 18px;
@@ -584,6 +584,15 @@ button.req:hover { background: var(--navigation-background-hover); }
 }
 @media (prefers-reduced-motion: reduce) { .shot.reveal .hotspot { animation-duration: 1ms; } }
 
+/* ---------- Embed mode (?embed): just the switch, phone and a link ---------- */
+.embed { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+.embed .switch { width: 390px; max-width: 100%; }
+.embed .phone { height: min(844px, max(560px, calc(100vh - 200px))); max-width: 100%; }
+.embed .nav-row { max-width: 100%; }
+.embed-link { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; text-decoration: none; }
+.embed-link:hover { text-decoration: underline; }
+.embed-link:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-100, 4px); }
+
 /* ---------- GLP-1 tracker page ---------- */
 .glp-body { padding-top: 16px; }
 /* Day-activity tracker (Figma "Day-activity"). Days are 32px apart and
@@ -644,6 +653,13 @@ button.req:hover { background: var(--navigation-background-hover); }
 .trk-today--shot { border-color: var(--stroke-status-critical-subdued); color: var(--day-shot); }
 .trk-today--warning { border-color: var(--icon-status-warning); color: var(--icon-status-warning); }
 .trk-today .anvil-icon + .anvil-icon { color: var(--text-body-subdued); }
+/* The selected day can be tapped: a shot day opens the injection site,
+   a regular or warning day opens the Track sheet */
+.trk-today.is-tap { font: inherit; cursor: pointer; }
+.trk-today--shot.is-tap:hover { background: var(--background-status-critical-subdued); }
+.trk-today--default.is-tap:hover { background: color-mix(in srgb, var(--day-green) 22%, var(--background-surface)); }
+.trk-today--warning.is-tap:hover { background: var(--background-status-warning-subdued); }
+.trk-today.is-tap:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .glp-actions { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 8px; }
 .glp-action {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
