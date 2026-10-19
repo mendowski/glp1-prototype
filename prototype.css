@@ -584,15 +584,15 @@ button.req:hover { background: var(--navigation-background-hover); }
 }
 @media (prefers-reduced-motion: reduce) { .shot.reveal .hotspot { animation-duration: 1ms; } }
 
-/* ---------- Embed mode (?embed): just the switch, phone and a link ---------- */
-.embed { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
-.embed .switch { width: var(--embed-w, 390px); max-width: 100%; }
+/* ---------- Embed mode (?embed): just the phone, for a case study page ---------- */
+html.is-embed, html.is-embed body { background: transparent; }
+.embed { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px 8px; }
+.embed .switch { display: inline-flex; width: auto; padding: 2px; gap: 2px; border-radius: var(--radius-round, 999px); }
+.embed .switch button { min-height: 28px; padding: 4px 14px; font-size: 13px; line-height: 18px; border-radius: var(--radius-round, 999px); }
+.embed .switch small { display: none; }
 .embed-fit { flex: none; }
-.embed .phone { width: 390px; height: 844px; max-width: none; transform-origin: 0 0; }
+.embed .phone { width: 390px; height: 844px; min-height: 0; max-width: none; }
 .embed .nav-row { width: var(--embed-w, 390px); max-width: 100%; }
-.embed-link { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; text-decoration: none; }
-.embed-link:hover { text-decoration: underline; }
-.embed-link:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-100, 4px); }
 
 /* ---------- GLP-1 tracker page ---------- */
 .glp-body { padding-top: 16px; }
