@@ -327,7 +327,9 @@
           el.classList.add("is-dragging");
           if (el.setPointerCapture) el.setPointerCapture(e.pointerId);
         }
-        if (moved) el.scrollLeft = startLeft - dx;
+        // If the phone is scaled down (embed mode), match the drag to the pointer.
+        var k = el.offsetWidth ? el.getBoundingClientRect().width / el.offsetWidth : 1;
+        if (moved) el.scrollLeft = startLeft - dx / (k || 1);
       }
       function onUp() {
         if (!down) return;
@@ -1070,6 +1072,17 @@
       return function () { window.removeEventListener("hashchange", onHash); window.removeEventListener("keydown", onKey); };
     });
 
+    // Embed mode shows the phone at its real proportions (390 x 844), scaled
+    // down to fit the height of the frame it's embedded in.
+    function fitScale() { return Math.max(0.5, Math.min(1, (window.innerHeight - 190) / 844, (window.innerWidth - 32) / 390)); }
+    var fs = useState(EMBED ? fitScale() : 1), fit = fs[0], setFit = fs[1];
+    useEffect(function () {
+      if (!EMBED) return;
+      function onResize() { setFit(fitScale()); }
+      window.addEventListener("resize", onResize);
+      return function () { window.removeEventListener("resize", onResize); };
+    }, []);
+
     var screenProps = {
       next: last ? null : function () { go(i + 1, true); },
       back: i > 0 || trail[mode].length ? back : null,
@@ -1092,10 +1105,11 @@
     // Embed mode (add ?embed to the address): just the switch, the phone and
     // a link to the full prototype, for showing inside a case study page.
     if (EMBED) {
-      return h("main", { className: "embed" },
+      return h("main", { className: "embed", style: { "--embed-w": Math.max(300, Math.round(390 * fit)) + "px" } },
         switcher,
-        h("div", { className: "phone" },
-          h("div", { className: "screen", ref: screenRef, tabIndex: -1 }, screen)),
+        h("div", { className: "embed-fit", style: { width: 390 * fit, height: 844 * fit } },
+          h("div", { className: "phone", style: { zoom: fit } },
+            h("div", { className: "screen", ref: screenRef, tabIndex: -1 }, screen))),
         navRow,
         h("a", { className: "embed-link body-small-default", href: location.pathname + "#" + mode + "/" + (i + 1), target: "_blank", rel: "noopener" },
           "Open the full prototype", h(A.Icon, { name: "arrow-right", size: 16 })));
