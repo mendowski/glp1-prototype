@@ -701,6 +701,9 @@ html.is-embed, html.is-embed body { background: transparent; }
 }
 .glp-action:hover { background: var(--navigation-background-hover); }
 .glp-action:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.glp-action:disabled { color: var(--text-body-disabled); cursor: default; }
+.glp-action:disabled:hover { background: none; }
+.glp-action:disabled .anvil-icon { color: var(--icon-disabled); }
 /* Left-bar cards, matching Anvil's prominent VisitCard: a 6px bar, 4px
    corners on the bar side and the tinted card shadow. */
 .focus {

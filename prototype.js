@@ -538,9 +538,11 @@
           h("h1", { className: "heading-heading-2" }, "Day " + cfg.n + " of 30" + (cfg.n === DAYS[p.dayId].n ? " • Today" : "")),
           h("p", { className: "body-small-default", style: { marginTop: 4 } }, cfg.sub)),
         h(Tracker, { day: sel, start: start, live: live, onSelect: setSel, onMove: paint, today: DAYS[p.dayId].n, onPast: p.to("refill"), onTap: { shot: inject, "default": track, warning: track } }),
+        // Future days can't be logged yet, so the quick actions turn disabled.
         h("div", { className: "glp-actions" },
           [["medicine", cfg.med || "Medication", inject], ["plus-circle", "Track", track], ["medical-info", "Symptoms", symptoms]].map(function (a) {
-            return h("button", { key: a[1], type: "button", className: "glp-action", onClick: a[2] }, h(A.Icon, { name: a[0], size: 24 }), h("span", { className: "body-small-default" }, a[1]));
+            var future = sel > DAYS[p.dayId].n;
+            return h("button", { key: a[1], type: "button", className: "glp-action", disabled: future, onClick: future ? undefined : a[2] }, h(A.Icon, { name: a[0], size: 24 }), h("span", { className: "body-small-default" }, a[1]));
           })),
         h(SectionLabel, null, "Today’s focus"),
         h(FocusCard, { tone: focus.tone, title: focus.title, body: focus.body, icon: focus.icon, onClick: focus.go ? p.to(focus.go) : null }),
