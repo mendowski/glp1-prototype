@@ -370,7 +370,7 @@
         var tapTo = !props.live ? null : logged ? props.onPast : props.onTap ? props.onTap[info.kind] : null;
         var tapShot = !!tapTo;
         items.push(h(tapShot ? "button" : "span", Object.assign({ key: d, className: "trk-day trk-today trk-today--" + info.kind + (tapShot ? " is-tap" : ""), "aria-current": "date" },
-            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (logged ? "See your refill requirements" : info.kind === "shot" ? "Injection day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
+            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (logged ? "See your action summary" : info.kind === "shot" ? "Injection day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
           h(A.Icon, { name: "location-pin", size: 16, variant: "active" }),
           act ? h(A.Icon, { name: ACT_ICON[act], size: 16 }) : null));
         continue;
@@ -379,7 +379,7 @@
       var cls = "trk-day " + when + (shot ? " is-shot" : "");
       var content = [h("span", { key: "dot", className: "trk-dot" }), icon];
       items.push(d <= 30 && props.live
-        ? h("button", { key: d, type: "button", className: cls + " is-link", "aria-label": "Day " + d + (props.today && d < props.today ? ": see your refill requirements" : ""),
+        ? h("button", { key: d, type: "button", className: cls + " is-link", "aria-label": "Day " + d + (props.today && d < props.today ? ": see your action summary" : ""),
             onClick: props.today && d < props.today && props.onPast ? props.onPast : (function (n) { return function () { scrollToDay(n, true); }; })(d) }, content)
         : h("span", { key: d, className: cls, "aria-hidden": "true" }, content));
     }
@@ -651,7 +651,7 @@
     var warn = missing && left <= 3;
     var dots = [];
     for (var d = 1; d <= 30; d++) dots.push(h("span", { key: d, className: "rq-dot" + (d < today ? " is-past" : d === today ? " is-today" : "") }));
-    return h(Sheet, { title: "Refill requirements", tall: true, onClose: p.back, under: h(UnderDay) },
+    return h(Sheet, { title: "Action summary", tall: true, onClose: p.back, under: h(UnderDay) },
       h("p", { className: "body-default subdued", style: { marginBottom: 16 } }, "Complete all requirements by May 13 to keep your employer’s contribution."),
       h("div", { className: "rq-list" },
         groups.map(function (g) {
@@ -941,7 +941,7 @@
     { id: "day30", title: "Day 30: requirements met", render: dayScreen("day30") },
     { id: "inject", title: "Injection site", render: Injection, sheet: true, day: "day30" },
     { id: "shared", title: "What your employer can see", render: SharedInfo, sheet: true, day: "day1" },
-    { id: "refill", title: "Refill requirements (past days)", render: Refill, sheet: true, day: "day29" },
+    { id: "refill", title: "Action summary (past days)", render: Refill, sheet: true, day: "day29" },
 
     { id: "home-next", title: "Home", render: function (p) { return h(Home, Object.assign({}, p, { next_refill: true })); }, group: "Next refill", noStatus: true },
     { id: "health-next", title: "My health", render: function (p) { return h(MyHealth, Object.assign({}, p, { next_refill: true })); } },
