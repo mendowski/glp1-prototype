@@ -365,10 +365,12 @@
         // a regular or warning day opens the Track sheet.
         // A day before today opens the Refill requirements drawer.
         var past = props.today && d < props.today;
-        var tapTo = !props.live ? null : past ? props.onPast : props.onTap ? props.onTap[info.kind] : null;
+        // Today with something already logged (its icon shows) also opens it.
+        var logged = past || (act && act !== "shot");
+        var tapTo = !props.live ? null : logged ? props.onPast : props.onTap ? props.onTap[info.kind] : null;
         var tapShot = !!tapTo;
         items.push(h(tapShot ? "button" : "span", Object.assign({ key: d, className: "trk-day trk-today trk-today--" + info.kind + (tapShot ? " is-tap" : ""), "aria-current": "date" },
-            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (past ? "See your refill requirements" : info.kind === "shot" ? "Injection day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
+            tapShot ? { type: "button", onClick: tapTo, "aria-label": "Day " + d + ", selected. " + (logged ? "See your refill requirements" : info.kind === "shot" ? "Injection day: see your injection site" : "Track your activity") } : { "aria-label": "Day " + d + ", selected" }),
           h(A.Icon, { name: "location-pin", size: 16, variant: "active" }),
           act ? h(A.Icon, { name: ACT_ICON[act], size: 16 }) : null));
         continue;
@@ -619,6 +621,19 @@
   // Members can log one activity a day, so the list comes from LOGGED.
   var ITEM_LABEL = { weight: "Weight-in", coach: "Coaching session", lesson: "Lesson", food: "Food tracked" };
   var ITEM_LABEL_BY_DAY = { 29: "Meal synced from MyFitnessPal" };
+  // How each logged activity is described in the drawer.
+  var RQ_LABEL = { 1: "Synced scale", 4: "Session on", 9: "Synced scale", 11: "Food logged", 17: "Manual entry", 25: "Synced scale", 29: "Food logged", 30: "Synced scale" };
+
+  // Progress ring with the count inside (Refill requirements cards).
+  function Ring(props) {
+    var r = 21, c = 2 * Math.PI * r, f = props.of ? Math.min(1, props.n / props.of) : 0;
+    return h("span", { className: "rq-ring rq-ring--" + props.tone, role: "img", "aria-label": props.n + " of " + props.of + " done" },
+      h("svg", { width: 48, height: 48, viewBox: "0 0 48 48", "aria-hidden": "true" },
+        h("circle", { className: "rq-ring-track", cx: 24, cy: 24, r: r }),
+        h("circle", { className: "rq-ring-bar", cx: 24, cy: 24, r: r, strokeDasharray: f ? (c * f) + " " + c : "1.5 " + c, transform: "rotate(-90 24 24)" })),
+      h("span", null, props.n + "/" + props.of));
+  }
+
   function Refill(p) {
     var today = DAYS[session.day].n, left = 30 - today;
     function done(kinds) {
@@ -627,9 +642,9 @@
       return out;
     }
     var groups = [
-      { title: "Weigh-ins", need: 4, days: done(["weight"]), todo: function (n) { return "Complete " + n + " weight-in" + (n > 1 ? "s" : ""); } },
-      { title: "Coaching", need: 1, days: done(["coach"]), todo: function () { return "Complete a coaching session"; } },
-      { title: "Lessons or food tracking", need: 4, days: done(["lesson", "food"]), todo: function (n) { return n > 1 ? "Complete " + n + " lessons or food logs" : "Complete a lesson or log food"; } }
+      { title: "Weight-in", icon: "weight", need: 4, days: done(["weight"]), todo: function (n) { return "Complete " + n + " weight-in" + (n > 1 ? "s" : ""); } },
+      { title: "Coaching", icon: "chat", need: 1, days: done(["coach"]), todo: function () { return "Complete a coaching session"; } },
+      { title: "Food logs or lessons", icon: "meal", need: 4, days: done(["lesson", "food"]), todo: function (n) { return n > 1 ? "Complete " + n + " lessons or food logs" : "Complete a lesson or log food"; } }
     ];
     var missing = groups.some(function (g) { return g.days.length < g.need; });
     // Near the end of the cycle with something still missing: warn.
@@ -641,16 +656,18 @@
       h("div", { className: "rq-list" },
         groups.map(function (g) {
           var n = Math.min(g.days.length, g.need), complete = n >= g.need;
-          var rows = g.days.map(function (d) {
-            return h("li", { key: d }, h(A.Icon, { name: "check", size: 16 }), h("span", null, ITEM_LABEL_BY_DAY[d] && LOGGED[d] === "food" ? ITEM_LABEL_BY_DAY[d] : ITEM_LABEL[LOGGED[d]]), h("span", null, dateOf(d)));
+          // Newest first.
+          var rows = g.days.slice().reverse().map(function (d) {
+            return h("li", { key: d }, h("span", null, RQ_LABEL[d] || ITEM_LABEL[LOGGED[d]]), h("span", null, dateOf(d)));
           });
-          if (warn && !complete) rows.push(h("li", { key: "todo", className: "rq-todo" }, h(A.Icon, { name: "alert-triangle", size: 16 }), h("span", null, g.todo(g.need - n))));
+          var todo = warn && !complete ? h("p", { className: "rq-todo body-default" }, h(A.Icon, { name: "alert-triangle", variant: "active", size: 16 }), g.todo(g.need - n)) : null;
           return h("section", { key: g.title, className: "rq-card" },
             h("div", { className: "rq-head" },
-              complete ? h(A.Icon, { name: "check-circle", variant: "active", size: 24 }) : null,
+              h(A.Icon, { name: g.icon, size: 16 }),
               h("h3", { className: "heading-heading-4" }, g.title),
-              h("span", { className: "tag " + (complete ? "tag--success" : warn ? "tag--warn-outline" : "") }, n + "/" + g.need)),
-            rows.length ? h("ul", { className: "rq-rows body-small-default" }, rows) : null);
+              h(Ring, { n: n, of: g.need, tone: complete ? "done" : warn ? "warn" : "progress" })),
+            todo,
+            rows.length ? h("ul", { className: "rq-rows utility-3-default" }, rows) : null);
         })),
       h("div", { className: "rq-cycle" + (warn ? " is-warn" : "") },
         h("p", { className: "body-small-default subdued" }, "Apr 13 - May 13"),
@@ -1158,9 +1175,11 @@
       ? h(BeforeScreen, Object.assign({ key: "b" + i, screen: flow[i] }, screenProps))
       : h(AfterScreen, Object.assign({ key: "a" + i, screen: flow[i] }, screenProps));
 
-    var switcher = h("div", { className: "switch", role: "group", "aria-label": "Version" },
-      h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")),
-      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil")));
+    // Segmented control: After first, then Before. A white thumb slides to the
+    // selected side (see .switch in prototype.css).
+    var switcher = h("div", { className: "switch", role: "group", "aria-label": "Version", "data-active": mode },
+      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil")),
+      h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")));
     var navRow = h("div", { className: "nav-row" },
       h(A.Button, { variant: "tertiary", icon: "left", iconName: "arrow-left", disabled: i === 0, onClick: function () { go(i - 1); } }, "Previous"),
       h("span", { className: "counter", "aria-live": "polite" }, (i + 1) + " of " + flow.length),
@@ -1187,14 +1206,12 @@
     return h("main", { className: "page" },
       h("header", { className: "intro" },
         h("p", { className: "heading-eyebrow" }, "Teladoc Health · GLP-1 · Mini case study"),
-        h("h1", { className: "heading-heading-1" }, "GLP-1 medication, before and after Anvil"),
+        h("h1", { className: "heading-heading-1" }, "GLP-1 weight loss medication"),
         h("p", { className: "body-default" }, "Click through the original GLP-1 experience, then switch to the redesign built with the Anvil design system. Tap each screen’s main button to move forward. The story behind it is below.")),
 
       h("div", { className: "stage" },
         h("section", { className: "panel panel--left", "aria-label": "Version" },
-          h("div", { className: "switch", role: "group", "aria-label": "Version" },
-            h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")),
-            h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil"))),
+          switcher,
           h("p", { className: "body-small-default about" }, mode === "before"
             ? "The original experience: " + BEFORE.length + " screens, shown as screenshots. Click anywhere to see where to tap."
             : "The redesign: " + AFTER.length + " screens, built live with Anvil components, tokens and illustrations. Tap a day in the tracker, log your weight or check a symptom.")),

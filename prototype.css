@@ -28,35 +28,35 @@ a { color: var(--text-body-link); }
 .panel { display: flex; flex-direction: column; gap: 24px; padding-top: 8px; }
 .panel--right { order: 3; }
 
-/* Before / After switch */
+/* Before / After switch: a segmented control with a sliding white thumb */
 .switch {
-  display: inline-grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 4px;
-  gap: 4px;
+  position: relative; isolation: isolate;
+  display: grid; grid-template-columns: 1fr 1fr;
+  width: 100%; padding: 4px;
+  background: var(--background-neutral, #efeef3);
+  border-radius: var(--radius-round, 999px);
+}
+.switch::before {
+  content: ""; position: absolute; z-index: -1;
+  top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+  border-radius: var(--radius-round, 999px);
   background: var(--background-surface);
-  border: 1px solid var(--stroke-base);
-  border-radius: var(--radius-200);
-  width: 100%;
+  box-shadow: 0 1px 2px rgba(27, 18, 51, .10), 0 4px 12px rgba(27, 18, 51, .10);
+  transition: transform .28s cubic-bezier(.3, .7, .2, 1);
 }
+.switch[data-active="before"]::before { transform: translateX(100%); }
 .switch button {
-  appearance: none;
-  border: 0;
-  border-radius: var(--radius-200);
-  background: transparent;
-  color: var(--text-body-base);
-  font: 500 16px/20px var(--font-sans);
-  padding: 12px 16px;
-  min-height: 44px;
-  cursor: pointer;
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  border-radius: var(--radius-round, 999px);
+  padding: 8px 16px; min-height: 44px;
+  font: 500 15px/20px var(--font-sans); color: var(--text-body-subdued);
+  transition: color .2s ease;
 }
-.switch button:hover { background: var(--navigation-background-hover); }
+.switch button:hover, .switch button[aria-pressed="true"] { color: var(--text-body-base); }
+.switch button[aria-pressed="true"] { font-weight: 600; }
 .switch button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.switch button[aria-pressed="true"] {
-  background: var(--button-primary-background-default, var(--background-status-branded-base));
-  color: var(--text-body-inverted);
-}
-.switch small { display: block; font-size: 12px; line-height: 16px; font-weight: 400; opacity: .85; }
+.switch small { display: block; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--text-body-subdued); }
+@media (prefers-reduced-motion: reduce) { .switch::before { transition: none; } }
 
 .panel-label { color: var(--text-header-sections); text-transform: uppercase; margin-bottom: 8px; }
 .about { color: var(--text-body-subdued); }
@@ -451,17 +451,31 @@ button.med:hover { background: var(--navigation-background-hover); }
   box-shadow: var(--elevation);
 }
 .sheet-wrap { height: 100%; }
+/* Subtle scroll bar in sheets: a thin, rounded, see-through thumb inset from
+   the edge, with no track (like iOS). */
+.sheet::-webkit-scrollbar { width: 10px; }
+.sheet::-webkit-scrollbar-track { background: transparent; margin: 28px 0; }
+.sheet::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, .22); border: 3px solid transparent; border-radius: 999px; background-clip: padding-box; }
+.sheet::-webkit-scrollbar-thumb:hover { background-color: rgba(0, 0, 0, .35); }
+@supports not selector(::-webkit-scrollbar) { .sheet { scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, .22) transparent; } }
 /* Refill requirements drawer: progress so far this cycle */
 .rq-list { display: flex; flex-direction: column; gap: 12px; }
 .rq-card { padding: 16px; border: 1px solid var(--stroke-subdued); border-radius: var(--radius-150); background: var(--background-surface); }
-.rq-head { display: flex; align-items: center; gap: 8px; }
+.rq-head { display: flex; align-items: center; gap: 12px; }
 .rq-head h3 { flex: 1; }
-.rq-head > .anvil-icon { color: var(--icon-status-success); flex: none; }
-.rq-rows { list-style: none; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px solid var(--stroke-base); display: flex; flex-direction: column; gap: 12px; color: var(--text-body-subdued); }
-.rq-rows li { display: flex; align-items: center; gap: 8px; }
-.rq-rows li > span:first-of-type { flex: 1; }
-.rq-todo > .anvil-icon { color: var(--icon-status-warning); }
-.tag--warn-outline { border-color: var(--icon-status-warning); color: var(--text-status-warning); }
+.rq-head > .anvil-icon { flex: none; color: var(--text-body-base); }
+.rq-ring { position: relative; flex: none; width: 48px; height: 48px; display: grid; place-items: center; }
+.rq-ring svg { position: absolute; inset: 0; }
+.rq-ring > span { position: relative; font: 600 16px/20px var(--font-sans); color: var(--text-body-base); }
+.rq-ring-track, .rq-ring-bar { fill: none; stroke-width: 4; }
+.rq-ring-track { stroke: var(--stroke-subdued); }
+.rq-ring-bar { stroke: var(--icon-status-success); stroke-linecap: round; }
+.rq-ring--warn .rq-ring-bar { stroke: var(--icon-status-warning); }
+.rq-ring--done .rq-ring-bar { stroke-linecap: butt; }
+.rq-todo { display: flex; align-items: center; gap: 12px; margin-top: 16px; color: var(--text-body-subdued); }
+.rq-todo > .anvil-icon { flex: none; color: var(--icon-status-warning); }
+.rq-rows { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; color: var(--text-body-subdued); }
+.rq-rows li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .rq-cycle { margin-top: 16px; padding: 16px; border-radius: var(--radius-150); background: var(--background-neutral); }
 .rq-cycle-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
 .rq-dots { display: flex; align-items: center; justify-content: space-between; }
@@ -610,8 +624,9 @@ button.req:hover { background: var(--navigation-background-hover); }
 /* ---------- Embed mode (?embed): just the phone, for a case study page ---------- */
 html.is-embed, html.is-embed body { background: transparent; }
 .embed { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px 8px; }
-.embed .switch { display: inline-flex; width: auto; padding: 2px; gap: 2px; border-radius: var(--radius-round, 999px); }
-.embed .switch button { min-height: 28px; padding: 4px 14px; font-size: 13px; line-height: 18px; border-radius: var(--radius-round, 999px); }
+.embed .switch { display: inline-grid; width: 180px; padding: 2px; }
+.embed .switch::before { top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); }
+.embed .switch button { min-height: 28px; padding: 4px 14px; font-size: 13px; line-height: 18px; }
 .embed .switch small { display: none; }
 .embed-fit { flex: none; }
 .embed .phone { width: 390px; height: 844px; min-height: 0; max-width: none; }
