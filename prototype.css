@@ -44,7 +44,7 @@ a { color: var(--text-body-link); }
   box-shadow: 0 1px 2px rgba(27, 18, 51, .10), 0 4px 12px rgba(27, 18, 51, .10);
   transition: transform .28s cubic-bezier(.3, .7, .2, 1);
 }
-.switch[data-active="before"]::before { transform: translateX(100%); }
+.switch[data-active="after"]::before { transform: translateX(100%); }
 .switch button {
   appearance: none; border: 0; background: transparent; cursor: pointer;
   border-radius: var(--radius-round, 999px);
@@ -361,6 +361,7 @@ a { color: var(--text-body-link); }
   border: 1px solid var(--stroke-base); border-radius: var(--radius-150); background: var(--background-surface);
 }
 .care-tile .body-small-default { padding-top: 8px; border-top: 1px solid var(--stroke-subdued); }
+.care-ico { display: block; width: 38px; height: 32px; }
 .row-link {
   display: flex; align-items: center; gap: 12px; padding: 12px 16px;
   border: 1px solid var(--stroke-base); background: var(--background-surface);
@@ -397,12 +398,12 @@ a { color: var(--text-body-link); }
 .snap-row { display: flex; gap: var(--space-150); overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
 .snap-row::-webkit-scrollbar { display: none; }
 .snap {
-  flex: none; width: 168px; display: flex; flex-direction: column; gap: 8px; padding: 12px;
+  flex: none; width: 176px; display: flex; flex-direction: column; gap: 8px; padding: 12px;
   border: 1px solid var(--stroke-base); border-radius: var(--radius-150); background: var(--background-surface);
 }
 .snap-label, .snap-t { display: flex; gap: 6px; align-items: center; }
 .snap-label .anvil-icon { color: var(--icon-status-branded); }
-.snap-v { font: 400 14px/20px var(--font-sans); }
+.snap-v { font: 400 14px/20px var(--font-sans); white-space: nowrap; }
 .snap-v strong { font-size: 20px; line-height: 26px; }
 .team { display: flex; gap: 16px; }
 .member { flex: 1; min-width: 0; display: flex; gap: 10px; align-items: center; }
@@ -412,6 +413,12 @@ a { color: var(--text-body-link); }
   border: 1px solid var(--stroke-base); border-radius: var(--radius-150); background: var(--background-surface);
 }
 .med .tap-go { right: 16px; top: 50%; bottom: auto; transform: translateY(-50%); }
+/* GLP-1 medication card: day, days to refill, cycle dots and a link */
+button.med:has(.med-day) { padding-right: 16px; text-align: left; }
+.med-day { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.med-dots { margin: 4px 0 0; }
+.med-link { display: inline-flex; align-items: center; gap: 8px; font: 500 16px/24px var(--font-sans); color: var(--text-body-link); }
+button.med:hover .med-link { text-decoration: underline; }
 button.med:hover { background: var(--navigation-background-hover); }
 
 .ask-ai {
@@ -732,7 +739,7 @@ html.is-embed, html.is-embed body { background: transparent; }
 .focus--success { border-left-color: var(--stroke-status-success-subdued); }
 .focus--warning { border-left-color: var(--text-status-warning); }
 .focus--shot { border-left-color: var(--day-shot); }
-.focus--plain { border: 1px solid var(--stroke-base); border-radius: var(--radius-150); padding-left: 16px; box-shadow: none; }
+.focus--plain { border: 1px solid var(--stroke-subdued); border-radius: var(--radius-150); padding-left: 16px; }
 button.focus:hover { background: var(--navigation-background-hover); }
 button.focus:active { background: var(--navigation-background-pressed); }
 button.focus:focus-visible { outline: none; box-shadow: var(--focus-ring); }
@@ -740,8 +747,9 @@ button.focus:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .focus-body .anvil-icon { flex: none; margin-top: 2px; }
 .tools {
   display: grid; grid-template-columns: repeat(5, 1fr);
-  padding: 8px 4px; border: 1px solid var(--stroke-base);
+  padding: 8px 4px; border: 1px solid var(--stroke-subdued);
   border-radius: var(--radius-150); background: var(--background-surface);
+  box-shadow: 0 4px 12px 0 var(--effect-elevation-tinted);
 }
 .tool {
   display: flex; flex-direction: column; align-items: center; gap: 6px;

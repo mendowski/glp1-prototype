@@ -210,7 +210,7 @@
   function dayInfo(n) {
     var shot = SHOTS.indexOf(n) >= 0;
     if (n === 30) return { n: n, kind: "complete", sub: "Last day of your cycle", med: "Injection log",
-      focus: { tone: "success", title: "You’ve completed the GLP-1 coverage requirements", body: "Tirzepatide 15 mg will be mailed to you within 5–7 days." }, forYou: "meal" };
+      focus: { tone: "success", title: "You’ve completed the GLP-1 coverage requirements", body: "Wegovy 0.25 mg will be mailed to you within 3-5 days." }, forYou: "meal" };
     if (n === 29) return { n: n, kind: "warning", sub: "Tomorrow is the last day of your GLP-1 cycle",
       focus: { tone: "warning", title: "You’re missing one food log or a lesson", body: "Complete your task to get your refill on time.", go: "track" }, forYou: "meal" };
     if (shot) return { n: n, kind: "shot", sub: "Injection day",
@@ -392,10 +392,10 @@
   function Home(p) {
     var next = p.next_refill;
     var care = [
-      { spot: "primary-care", title: "Primary care", sub: "Schedule a visit" },
-      { spot: "mental-health", title: "Mental health", sub: "View options", bg: "green" },
-      { spot: "dermatology", title: "Dermatology", sub: "Upload a photo", bg: "aqua" },
-      { spot: "nutrition", title: "Nutrition", sub: "Pick a dietitian", bg: "berry" }
+      { icon: "primary-care", title: "Primary care", sub: "Schedule a visit" },
+      { icon: "mental-health", title: "Mental health", sub: "View options" },
+      { icon: "dermatology", title: "Dermatology", sub: "Upload a photo" },
+      { icon: "nutrition", title: "Nutrition", sub: "Pick a dietitian" }
     ];
     var health = p.to(next ? "health-next" : "health");
     return h(React.Fragment, null,
@@ -442,7 +442,8 @@
         h("div", { className: "care-grid" },
           care.map(function (c) {
             return h("div", { key: c.title, className: "care-tile" },
-              h(A.Illustration, { name: c.spot, size: 48, background: (c.bg || "purple") + "-subdued", alt: "" }),
+              // Icon tiles cropped from Figma 000 (images/care-*.png).
+              h("img", { className: "care-ico", src: "images/care-" + c.icon + ".png", alt: "", width: 38, height: 32 }),
               h("h3", { className: "heading-heading-4" }, c.title),
               h("p", { className: "body-small-default" }, c.sub));
           })),
@@ -456,6 +457,7 @@
   function MyHealth(p) {
     var next = p.next_refill;
     var snap = [
+      { icon: "weight", label: "Weight", v: "206 lbs", goal: "of 196 goal", trend: "line-arrow-down", t: "10 lbs to goal", when: "Today" },
       { icon: "blood-pressure", label: "Blood pressure", v: "118/76", u: "mmHg", trend: "line-arrow-up", t: "13% from last week", when: "Today" },
       { icon: "blood-sugar", label: "Blood sugar", v: "102", u: "mg/dL", trend: "minus", t: "Stable", when: "March 13, 2026" },
       { icon: "steps", label: "Steps", v: "8,412", u: "steps", trend: "line-arrow-down", t: "4% from last week", when: "Today" }
@@ -468,21 +470,24 @@
           snap.map(function (s) {
             return h("div", { key: s.label, className: "snap" },
               h("p", { className: "body-small-default snap-label" }, h(A.Icon, { name: s.icon, size: 16 }), s.label),
-              h("p", { className: "snap-v" }, h("strong", null, s.v), " ", s.u),
+              h("p", { className: "snap-v" }, h("strong", null, s.v), " ", s.goal || s.u),
               h("p", { className: "body-small-default snap-t" }, h(A.Icon, { name: s.trend, size: 16 }), s.t),
               h("p", { className: "body-small-default subdued" }, s.when));
           })),
         h(SectionLabel, null, next ? "Programs" : "Medications"),
         h("div", { className: "stack stack--nav" },
-          h(Tap, { className: "med", onClick: p.to(next ? "day30" : "day1"), label: "GLP-1 for weight loss: Tirzepatide, 15 mg" },
-            h("p", { className: "body-small-default" }, next ? "GLP-1 for weight loss program" : "GLP-1 for weight loss"),
-            h("p", { className: "heading-heading-4" }, "Tirzepatide, 15 mg"),
-            next ? h(Tag, { tone: "branded" }, "Ready to start on May 14") : h(Tag, { tone: "warning" }, "Complete between Apr 13 – May 13"),
-            h("p", { className: "body-default subdued" }, "Your discount applies after you complete 4 weigh-ins, 1 coaching session, and 4 food logs or lessons."),
-            h("span", { className: "tap-go" }, h(A.Icon, { name: "arrow-right", size: 16 }))),
+          h(Tap, { className: "med", onClick: p.to(next ? "day30" : "day1"), label: "Weight loss, GLP-1: open the GLP-1 tracker" },
+            h("p", { className: "body-small-default" }, "Wegovy, 0.25 mg"),
+            h("p", { className: "heading-heading-4" }, "Weight loss • GLP-1"),
+            h("span", { className: "med-day" },
+              h("span", { className: "body-strong" }, "Day " + (next ? 30 : 1) + " of 30 • Today"),
+              h("span", { className: "body-default subdued" }, next ? "Refill today" : "29 days to refill")),
+            h("span", { className: "rq-dots med-dots", "aria-hidden": "true" },
+              Array.apply(null, Array(30)).map(function (_, k) { var d = k + 1, today = next ? 30 : 1;
+                return h("span", { key: d, className: "rq-dot" + (d < today ? " is-past" : d === today ? " is-today" : "") }); }))),
           h("div", { className: "med" },
-            h("p", { className: "body-small-default" }, "Blood pressure"),
-            h("p", { className: "heading-heading-4" }, "Lisinopril, 10 mg"),
+            h("p", { className: "body-small-default" }, "Lisinopril, 10 mg"),
+            h("p", { className: "heading-heading-4" }, "Blood pressure"),
             h(Tag, { tone: "success" }, "Active"),
             h("p", { className: "body-default subdued" }, "Next refill: May 13, 2026"))),
         h(SectionLabel, null, "Care team"),
@@ -532,7 +537,8 @@
 
     var track = p.to("track"), inject = p.to("inject"), symptoms = p.to("symptoms");
     var focus = cfg.focus;
-    var tools = [["stethoscope", "Visit prep", null], ["chat", "Coaching", track], ["weight", "Weight", track], ["meal", "Food log", track], ["library", "Lessons", track]];
+    // Each tool opens its own screen (no screens yet for Visit prep or Coaching).
+    var tools = [["stethoscope", "Visit prep", null], ["chat", "Coaching", null], ["weight", "Weight", p.to("weighins")], ["meal", "Food log", p.to("food")], ["library", "Lessons", p.to("lessons")]];
     return h("div", { className: "glp", ref: rootRef },
       h(Focused, { title: "GLP-1 for weight loss", onBack: p.to(sel === 30 ? "health-next" : "health") }),
       h("div", { className: "as-body glp-body" },
@@ -1175,11 +1181,11 @@
       ? h(BeforeScreen, Object.assign({ key: "b" + i, screen: flow[i] }, screenProps))
       : h(AfterScreen, Object.assign({ key: "a" + i, screen: flow[i] }, screenProps));
 
-    // Segmented control: After first, then Before. A white thumb slides to the
+    // Segmented control: Before first, then After. A white thumb slides to the
     // selected side (see .switch in prototype.css).
     var switcher = h("div", { className: "switch", role: "group", "aria-label": "Version", "data-active": mode },
-      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil")),
-      h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")));
+      h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")),
+      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil")));
     var navRow = h("div", { className: "nav-row" },
       h(A.Button, { variant: "tertiary", icon: "left", iconName: "arrow-left", disabled: i === 0, onClick: function () { go(i - 1); } }, "Previous"),
       h("span", { className: "counter", "aria-live": "polite" }, (i + 1) + " of " + flow.length),
