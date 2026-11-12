@@ -424,7 +424,7 @@
                 h("h3", { className: "heading-heading-4" }, "Your GLP-1 benefit is ready"),
                 h(Tag, { tone: "info" }, "Enrolled")),
               h("p", { className: "body-small-default action-note" }, h(A.Icon, { name: "video", size: 16 }), "Sally will schedule your first prescriber visit within 24 hours."),
-              h(A.Button, { variant: "tertiary", onClick: health }, "View program details")),
+              h(A.Button, { variant: "tertiary", onClick: p.to("day1") }, "View program details")),
         next ? null : h(React.Fragment, null,
           h(SectionLabel, null, "Upcoming visits"),
           h(Tap, { className: "visit", label: "Video visit with Peter Brennan, MD, April 30 at 4:00 PM" },
