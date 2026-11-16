@@ -3,15 +3,15 @@
 A clickable before-and-after prototype of the Teladoc Health GLP-1 medication experience, with a mini case study below it.
 
 - **Before:** the original screens, as screenshots in `before/`. Each one has invisible hotspots: the main one moves to the next screen, and the others are shortcuts (like "Return to Condition Management Home"). Click anywhere else on a screen to see where to tap. The tab bar stays pinned to the bottom of the phone.
-- **After:** the redesign, built live with the [Anvil design system](https://mendowski.github.io/anvil-design-system/). Its components, tokens, fonts and illustrations all load from the Anvil site, so updates to Anvil show up here automatically.
+- **After:** the redesign, built live with the [Pulse design system](https://mendowski.github.io/anvil-design-system/). Its components, tokens, fonts and illustrations all load from the Pulse site, so updates to Pulse show up here automatically.
 
 ## Files
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The page. Loads Anvil, React and the two files below |
-| `prototype.js` | Both flows (hotspots for the old screens, Anvil-built new screens) and the mini case study (`STATS`, `DECISIONS` and `CaseStudy`) |
-| `prototype.css` | Page layout, the phone frame and the new screens, using Anvil tokens |
+| `index.html` | The page. Loads Pulse, React and the two files below |
+| `prototype.js` | Both flows (hotspots for the old screens, Pulse-built new screens) and the mini case study (`STATS`, `DECISIONS` and `CaseStudy`) |
+| `prototype.css` | Page layout, the phone frame and the new screens, using Pulse tokens |
 | `before/` | Screenshots of the original screens |
 | `after/` | Figma exports of the redesign, for reference only. The live prototype doesn't use them |
 

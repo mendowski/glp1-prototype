@@ -11,7 +11,7 @@
 
   if (!A) {
     document.getElementById("app").innerHTML =
-      '<p style="padding:24px;font-family:sans-serif">The Anvil design system didn’t load. Check your connection and refresh.</p>';
+      '<p style="padding:24px;font-family:sans-serif">The Pulse design system didn’t load. Check your connection and refresh.</p>';
     return;
   }
 
@@ -1059,7 +1059,7 @@
           h("strong", null, "Role: "), "Lead Product Designer · ",
           h("strong", null, "Team: "), "Chronic Care Management · ",
           h("strong", null, "Timeline: "), "Jan 2026 – Q2 2027 releases · ",
-          h("strong", null, "Built with: "), "Anvil design system")),
+          h("strong", null, "Built with: "), "Pulse design system")),
 
       h("ul", { className: "case-stats" },
         STATS.map(function (s, n) {
@@ -1185,7 +1185,7 @@
     // selected side (see .switch in prototype.css).
     var switcher = h("div", { className: "switch", role: "group", "aria-label": "Version", "data-active": mode },
       h("button", { type: "button", "aria-pressed": mode === "before", onClick: function () { switchTo("before"); } }, "Before", h("small", null, "Original")),
-      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Anvil")));
+      h("button", { type: "button", "aria-pressed": mode === "after", onClick: function () { switchTo("after"); } }, "After", h("small", null, "Pulse")));
     var navRow = h("div", { className: "nav-row" },
       h(A.Button, { variant: "tertiary", icon: "left", iconName: "arrow-left", disabled: i === 0, onClick: function () { go(i - 1); } }, "Previous"),
       h("span", { className: "counter", "aria-live": "polite" }, (i + 1) + " of " + flow.length),
@@ -1213,14 +1213,14 @@
       h("header", { className: "intro" },
         h("p", { className: "heading-eyebrow" }, "Teladoc Health · GLP-1 · Mini case study"),
         h("h1", { className: "heading-heading-1" }, "GLP-1 weight loss medication"),
-        h("p", { className: "body-default" }, "Click through the original GLP-1 experience, then switch to the redesign built with the Anvil design system. Tap each screen’s main button to move forward. The story behind it is below.")),
+        h("p", { className: "body-default" }, "Click through the original GLP-1 experience, then switch to the redesign built with the Pulse design system. Tap each screen’s main button to move forward. The story behind it is below.")),
 
       h("div", { className: "stage" },
         h("section", { className: "panel panel--left", "aria-label": "Version" },
           switcher,
           h("p", { className: "body-small-default about" }, mode === "before"
             ? "The original experience: " + BEFORE.length + " screens, shown as screenshots. Click anywhere to see where to tap."
-            : "The redesign: " + AFTER.length + " screens, built live with Anvil components, tokens and illustrations. Tap a day in the tracker, log your weight or check a symptom.")),
+            : "The redesign: " + AFTER.length + " screens, built live with Pulse components, tokens and illustrations. Tap a day in the tracker, log your weight or check a symptom.")),
 
         h("div", { className: "device" },
           h("div", { className: "phone" },
