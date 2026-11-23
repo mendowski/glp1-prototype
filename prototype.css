@@ -844,3 +844,4 @@ button.track-row:active { background: var(--navigation-list-item-background-prom
 .anvil-input.date .date-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .dose-done { margin-top: 40px; margin-bottom: 12px; }
 .dose-done + .log { margin-top: 0; }
+.dose-done + .log, .dose-done + .log span { color: var(--text-body-disabled); font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }

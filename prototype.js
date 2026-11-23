@@ -209,7 +209,7 @@
   // default, shot, warning (day 29, a task missing) or complete (day 30).
   function dayInfo(n) {
     var shot = SHOTS.indexOf(n) >= 0;
-    if (n === 30) return { n: n, kind: "complete", sub: "Last day of your cycle", med: "Injection log",
+    if (n === 30) return { n: n, kind: "complete", sub: "Last day of your cycle",
       focus: { tone: "success", title: "You’ve completed the GLP-1 coverage requirements", body: "Wegovy 0.25 mg will be mailed to you within 3-5 days." }, forYou: "meal" };
     if (n === 29) return { n: n, kind: "warning", sub: "Tomorrow is the last day of your GLP-1 cycle",
       focus: { tone: "warning", title: "You’re missing one food log or a lesson", body: "Complete your task to get your refill on time.", go: "track" }, forYou: "meal" };
@@ -632,7 +632,7 @@
           SIDED[site] ? h(Select, { key: site, ariaLabel: site + " side", defaultValue: "Right", options: ["Right", "Left"], onChange: function (v) { side.current = v; } }) : null),
         h(Primary, { onClick: submit }, "Log dose")),
       h("h3", { className: "heading-heading-4 dose-done" }, "Shots completed"),
-      h("ul", { className: "log" },
+      h("ul", { className: "log body-small-default" },
         h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Left arm"), h("span", null, dateOf(last))),
         h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Right leg"), h("span", null, dateOf(prev)))));
   }
