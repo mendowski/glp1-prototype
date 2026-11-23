@@ -588,17 +588,53 @@
      ------------------------------------------------------------------ */
   function nextShot(day) { for (var i = 0; i < SHOTS.length; i++) if (SHOTS[i] >= day) return SHOTS[i]; return 35; }
 
+  // Log a dose (Figma 006, injection site). Picking Leg or Arm shows a
+  // Left/Right select; Stomach doesn't need one.
+  var DOSES = ["0.25 mg", "0.5 mg", "1 mg", "1.7 mg", "2.4 mg"];
+  var SIDED = { Leg: true, Arm: true };
+  function isoOf(d) { var t = new Date(2026, 3, 12 + d); return t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2); }
+
+  // Date field, built from Anvil's field and input styles (Anvil has no date picker yet).
+  function DateField(props) {
+    var ref = useRef(null);
+    function open() { var el = ref.current; if (el && el.showPicker) { try { el.showPicker(); } catch (e) {} } }
+    return h("div", { className: "anvil-field" },
+      h("div", { className: "anvil-field__labels" },
+        h("label", { className: "anvil-field__label", htmlFor: props.id }, props.label)),
+      h("div", { className: "anvil-input date" },
+        h("input", { ref: ref, id: props.id, type: "date", className: "anvil-input__native", value: props.value, onChange: function (e) { props.onChange(e.target.value); } }),
+        h("button", { type: "button", className: "anvil-input__icon date-btn", "aria-label": "Open calendar", onClick: open }, h(A.Icon, { name: "calendar" }))));
+  }
+
   function Injection(p) {
-    var day = session.n, next = nextShot(day);
+    var day = session.n;
     var past = SHOTS.filter(function (s) { return s < day; });
-    var last = past.length ? past[past.length - 1] : 0, prev = last - 7;
-    return h(Sheet, { title: "Injection site", onClose: p.back, under: h(UnderDay) },
-      h("div", { className: "inject-art" }, h("img", { src: "images/injection-site.png", alt: "", width: 698, height: 339 })),
-      h("p", { className: "suggest body-default" }, h(A.Icon, { name: "check-circle", variant: "active", size: 24 }),
-        next === day ? "Suggested: right thigh, today" : "Suggested: right thigh on " + dateOf(next)),
+    var last = past.length ? past[past.length - 1] : 7, prev = last - 7;
+    var ds = useState(isoOf(day)), date = ds[0], setDate = ds[1];
+    var ts = useState(null), time = ts[0], setTime = ts[1];
+    var ss = useState(null), site = ss[0], setSite = ss[1];
+    var dose = useRef(DOSES[0]), side = useRef("Right");
+    function pickSite(o) { setSite(o); side.current = "Right"; }
+    function submit() {
+      var where = site ? (SIDED[site] ? side.current + " " + site.toLowerCase() : site.toLowerCase()) : null;
+      logged(p, "Dose logged: " + dose.current + (where ? ", " + where : ""))();
+    }
+    return h(Sheet, { title: "Wegovy", tall: true, onClose: p.back, under: h(UnderDay) },
+      h("div", { className: "dose-form" },
+        h(Select, { label: "Dose", defaultValue: DOSES[0], options: DOSES, onChange: function (v) { dose.current = v; } }),
+        h(DateField, { id: "dose-day", label: "Day", value: date, onChange: setDate }),
+        h("div", { className: "dose-group" },
+          h("h3", { id: "dose-time", className: "anvil-field__label" }, "Time of day"),
+          h(Chips, { wrap: true, labelId: "dose-time", options: ["Morning", "Afternoon", "Evening"], value: time, onChange: setTime })),
+        h("div", { className: "dose-group" },
+          h("h3", { id: "dose-site", className: "anvil-field__label" }, "Injection site"),
+          h(Chips, { wrap: true, labelId: "dose-site", options: ["Leg", "Stomach", "Arm"], value: site, onChange: pickSite }),
+          SIDED[site] ? h(Select, { key: site, ariaLabel: site + " side", defaultValue: "Right", options: ["Right", "Left"], onChange: function (v) { side.current = v; } }) : null),
+        h(Primary, { onClick: submit }, "Log dose")),
+      h("h3", { className: "heading-heading-4 dose-done" }, "Shots completed"),
       h("ul", { className: "log" },
-        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Last injection completed: left arm"), h("span", null, dateOf(last))),
-        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Injection completed"), h("span", null, dateOf(prev)))));
+        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Left arm"), h("span", null, dateOf(last))),
+        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Right leg"), h("span", null, dateOf(prev)))));
   }
 
   // What the member's employer can and can't see (after/shared-information.png).
@@ -822,7 +858,7 @@
      AFTER screens: side effects (Figma 400-403)
      ------------------------------------------------------------------ */
   function Chips(props) {
-    return h("div", { className: "chips" + (props.row ? " chips--row" : ""), role: "group", "aria-labelledby": props.labelId },
+    return h("div", { className: "chips" + (props.row ? " chips--row" : "") + (props.wrap ? " chips--wrap" : ""), role: "group", "aria-labelledby": props.labelId },
       props.options.map(function (o) {
         return h("button", {
           key: o, type: "button", className: "chip", "aria-pressed": props.value === o,
@@ -945,7 +981,7 @@
     { id: "day7", title: "Day 7: injection day", render: dayScreen("day7") },
     { id: "day29", title: "Day 29: a task is missing", render: dayScreen("day29") },
     { id: "day30", title: "Day 30: requirements met", render: dayScreen("day30") },
-    { id: "inject", title: "Injection site", render: Injection, sheet: true, day: "day30" },
+    { id: "inject", title: "Log a dose", render: Injection, sheet: true, day: "day30" },
     { id: "shared", title: "What your employer can see", render: SharedInfo, sheet: true, day: "day1" },
     { id: "refill", title: "Action summary (past days)", render: Refill, sheet: true, day: "day29" },
 

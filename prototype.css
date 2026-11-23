@@ -830,3 +830,17 @@ button.track-row:active { background: var(--navigation-list-item-background-prom
 .facts-group:last-child { border-bottom: 0; }
 .facts-group--end { border-bottom: 2px solid var(--text-body-base); }
 .facts-row { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; }
+
+/* Log a dose (Figma 006 injection site) */
+.dose-form { display: flex; flex-direction: column; gap: 20px; }
+.dose-form > .anvil-button, .dose-form > button:last-child { margin-top: 20px; }
+.dose-group { display: flex; flex-direction: column; gap: 8px; }
+.dose-group h3 { margin: 0; }
+.chips--wrap { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+.anvil-input.date { position: relative; padding-right: 8px; }
+.anvil-input.date input { padding-right: 36px; }
+.anvil-input.date input::-webkit-calendar-picker-indicator { display: none; }
+.anvil-input.date .date-btn { position: absolute; right: 8px; appearance: none; border: 0; background: none; padding: 4px; cursor: pointer; color: inherit; border-radius: 4px; display: flex; }
+.anvil-input.date .date-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.dose-done { margin-top: 40px; margin-bottom: 12px; }
+.dose-done + .log { margin-top: 0; }
