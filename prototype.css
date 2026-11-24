@@ -842,6 +842,11 @@ button.track-row:active { background: var(--navigation-list-item-background-prom
 .anvil-input.date input::-webkit-calendar-picker-indicator { display: none; }
 .anvil-input.date .date-btn { position: absolute; right: 8px; appearance: none; border: 0; background: none; padding: 4px; cursor: pointer; color: inherit; border-radius: 4px; display: flex; }
 .anvil-input.date .date-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.dose-done { margin-top: 40px; margin-bottom: 12px; }
-.dose-done + .log { margin-top: 0; }
-.dose-done + .log, .dose-done + .log span { color: var(--text-body-disabled); font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+.dose-done {
+  margin-top: 40px; padding: 16px;
+  background: var(--background-surface); border: 1px solid var(--stroke-base); border-radius: var(--radius-150, 12px);
+}
+.dose-done .log { margin: 16px 0 0; gap: 16px; }
+.dose-done .log, .dose-done .log span { color: var(--text-body-disabled); font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+.dose-done .log li { gap: 14px; }
+.dose-done .log .anvil-icon { color: var(--text-body-disabled); }

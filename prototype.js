@@ -631,10 +631,12 @@
           h(Chips, { wrap: true, labelId: "dose-site", options: ["Leg", "Stomach", "Arm"], value: site, onChange: pickSite }),
           SIDED[site] ? h(Select, { key: site, ariaLabel: site + " side", defaultValue: "Right", options: ["Right", "Left"], onChange: function (v) { side.current = v; } }) : null),
         h(Primary, { onClick: submit }, "Log dose")),
-      h("h3", { className: "heading-heading-4 dose-done" }, "Shots completed"),
-      h("ul", { className: "log body-small-default" },
-        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Left arm"), h("span", null, dateOf(last))),
-        h("li", null, h(A.Icon, { name: "check", size: 16 }), h("span", null, "Right leg"), h("span", null, dateOf(prev)))));
+      // Injections completed card (Figma 006, "Completed").
+      h("section", { className: "dose-done", "aria-labelledby": "dose-done-title" },
+        h("h3", { id: "dose-done-title", className: "heading-heading-4" }, "Injections completed"),
+        h("ul", { className: "log body-small-default" },
+          h("li", null, h(A.Icon, { name: "check", size: 20 }), h("span", null, "Left arm"), h("span", null, dateOf(last))),
+          h("li", null, h(A.Icon, { name: "check", size: 20 }), h("span", null, "Right leg"), h("span", null, dateOf(prev))))));
   }
 
   // What the member's employer can and can't see (after/shared-information.png).
