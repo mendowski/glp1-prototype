@@ -947,26 +947,14 @@
         h("span", { className: "sms-field" }, "Text message")));
   }
 
-  // Select, built from Anvil's field and input styles (Anvil has no Select component yet).
-  var selectId = 0;
+  // Select: the Pulse Select input.
   function Select(props) {
-    var idRef = useRef("sel-" + (++selectId));
-    var st = useState(props.defaultValue || "");
-    var value = st[0], setValue = st[1];
-    var control = h("div", { className: "anvil-input select" + (value ? "" : " is-placeholder") },
-      h("select", {
-        id: idRef.current, className: "anvil-input__native", value: value,
-        "aria-label": props.label ? undefined : props.ariaLabel,
-        onChange: function (e) { setValue(e.target.value); if (props.onChange) props.onChange(e.target.value); }
-      },
-        h("option", { value: "", disabled: true }, props.placeholder || "Select"),
-        props.options.map(function (o) { return h("option", { key: o, value: o }, o); })),
-      h("span", { className: "anvil-input__icon" }, h(A.Icon, { name: "caret-down" })));
-    if (!props.label) return control;
-    return h("div", { className: "anvil-field" },
-      h("div", { className: "anvil-field__labels" },
-        h("label", { className: "anvil-field__label", htmlFor: idRef.current }, props.label)),
-      control);
+    return h(A.SelectInput, {
+      label: props.label, placeholder: props.placeholder,
+      "aria-label": props.label ? undefined : props.ariaLabel,
+      defaultValue: props.defaultValue || "", options: props.options,
+      onChange: function (v) { if (props.onChange) props.onChange(v); }
+    });
   }
 
   /* ------------------------------------------------------------------
